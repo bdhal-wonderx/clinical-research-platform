@@ -3,9 +3,9 @@ spring:
     name: rwe-platform
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:rwe_db}
-    username: ${DB_USER:rwe_user}
-    password: ${DB_PASSWORD:rwe_password}
+    url: jdbc:postgresql://115.124.127.46:5432/wondrxdev?currentSchema=wondrx
+    username: wrx_wondrxserver
+    password: Wo15nd4rx24s5er18ve5r@pP
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -15,6 +15,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: wondrx
         format_sql: true
     show-sql: false
 
@@ -22,14 +23,30 @@ spring:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
+    schemas: wondrx
+    default-schema: wondrx
 
   data:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
 
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        auto-startup: false
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${SERVER_PORT:8081}
   servlet:
     context-path: /
 
@@ -40,6 +57,13 @@ rwe:
   otp:
     expiration-seconds: ${OTP_EXPIRATION_SECONDS:300}
     length: 6
+  ocr:
+    service-url: ${OCR_SERVICE_URL:}
+    mock-enabled: ${OCR_MOCK_ENABLED:true}
+  storage:
+    upload-dir: ${UPLOAD_DIR:uploads}
+  followup:
+    cron: ${FOLLOWUP_CRON:0 0 8 * * *}
 
 springdoc:
   api-docs:

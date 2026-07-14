@@ -1,22 +1,23 @@
 package com.wonderx.rwe.entity;
 
-import com.wonderx.rwe.enums.DoctorStudyStatus;
+import com.wonderx.rwe.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "doctor_study", uniqueConstraints = @UniqueConstraint(columnNames = {"doctor_id", "study_id"}))
+@Table(name = "payment", uniqueConstraints = @UniqueConstraint(columnNames = "patient_id"))
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DoctorStudy {
+public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -30,25 +31,27 @@ public class DoctorStudy {
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
 
-    @Column(name = "assigned_at", nullable = false)
-    @Builder.Default
-    private Instant assignedAt = Instant.now();
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id", nullable = false, unique = true)
+    private Patient patient;
 
-    @Column(name = "assigned_by", length = 100)
-    private String assignedBy;
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal amount;
+
+    @Column(nullable = false, length = 3)
+    @Builder.Default
+    private String currency = "INR";
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     @Builder.Default
-    private DoctorStudyStatus status = DoctorStudyStatus.ACTIVE;
+    private PaymentStatus status = PaymentStatus.BLOCKED;
 
-    @Column(name = "patient_allocation", nullable = false)
-    @Builder.Default
-    private Integer patientAllocation = 20;
+    @Column(name = "block_reason", length = 255)
+    private String blockReason;
 
-    @Column(name = "patients_enrolled", nullable = false)
-    @Builder.Default
-    private Integer patientsEnrolled = 0;
+    @Column(name = "paid_at")
+    private Instant paidAt;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

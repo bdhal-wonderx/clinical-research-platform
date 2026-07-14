@@ -1,6 +1,6 @@
 package com.wonderx.rwe.entity;
 
-import com.wonderx.rwe.enums.DoctorStudyStatus;
+import com.wonderx.rwe.enums.QueryStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -10,13 +10,13 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "doctor_study", uniqueConstraints = @UniqueConstraint(columnNames = {"doctor_id", "study_id"}))
+@Table(name = "support_query")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DoctorStudy {
+public class SupportQuery {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -26,29 +26,22 @@ public class DoctorStudy {
     @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "study_id", nullable = false)
-    private Study study;
+    @Column(nullable = false, length = 50)
+    private String category;
 
-    @Column(name = "assigned_at", nullable = false)
-    @Builder.Default
-    private Instant assignedAt = Instant.now();
+    @Column(nullable = false, length = 255)
+    private String subject;
 
-    @Column(name = "assigned_by", length = 100)
-    private String assignedBy;
+    @Column(columnDefinition = "TEXT")
+    private String detail;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     @Builder.Default
-    private DoctorStudyStatus status = DoctorStudyStatus.ACTIVE;
+    private QueryStatus status = QueryStatus.OPEN;
 
-    @Column(name = "patient_allocation", nullable = false)
-    @Builder.Default
-    private Integer patientAllocation = 20;
-
-    @Column(name = "patients_enrolled", nullable = false)
-    @Builder.Default
-    private Integer patientsEnrolled = 0;
+    @Column(name = "resolved_at")
+    private Instant resolvedAt;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

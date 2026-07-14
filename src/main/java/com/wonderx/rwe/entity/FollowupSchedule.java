@@ -1,54 +1,60 @@
 package com.wonderx.rwe.entity;
 
-import com.wonderx.rwe.enums.DoctorStudyStatus;
+import com.wonderx.rwe.enums.FollowupStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "doctor_study", uniqueConstraints = @UniqueConstraint(columnNames = {"doctor_id", "study_id"}))
+@Table(name = "followup_schedule")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DoctorStudy {
+public class FollowupSchedule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", nullable = false)
-    private Doctor doctor;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id", nullable = false, unique = true)
+    private Patient patient;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
 
-    @Column(name = "assigned_at", nullable = false)
-    @Builder.Default
-    private Instant assignedAt = Instant.now();
+    @Column(name = "baseline_date", nullable = false)
+    private LocalDate baselineDate;
 
-    @Column(name = "assigned_by", length = 100)
-    private String assignedBy;
+    @Column(name = "due_date", nullable = false)
+    private LocalDate dueDate;
+
+    @Column(name = "window_start", nullable = false)
+    private LocalDate windowStart;
+
+    @Column(name = "window_end", nullable = false)
+    private LocalDate windowEnd;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     @Builder.Default
-    private DoctorStudyStatus status = DoctorStudyStatus.ACTIVE;
+    private FollowupStatus status = FollowupStatus.SCHEDULED;
 
-    @Column(name = "patient_allocation", nullable = false)
+    @Column(name = "sms_sent", nullable = false)
     @Builder.Default
-    private Integer patientAllocation = 20;
+    private Boolean smsSent = false;
 
-    @Column(name = "patients_enrolled", nullable = false)
+    @Column(name = "voice_sent", nullable = false)
     @Builder.Default
-    private Integer patientsEnrolled = 0;
+    private Boolean voiceSent = false;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

@@ -1,6 +1,6 @@
 package com.wonderx.rwe.entity;
 
-import com.wonderx.rwe.enums.DoctorStudyStatus;
+import com.wonderx.rwe.enums.PrescriptionStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -10,17 +10,25 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "doctor_study", uniqueConstraints = @UniqueConstraint(columnNames = {"doctor_id", "study_id"}))
+@Table(name = "prescription")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DoctorStudy {
+public class Prescription {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_visit_id", nullable = false, unique = true)
+    private PatientVisit patientVisit;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id", nullable = false)
+    private Patient patient;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id", nullable = false)
@@ -30,25 +38,17 @@ public class DoctorStudy {
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
 
-    @Column(name = "assigned_at", nullable = false)
-    @Builder.Default
-    private Instant assignedAt = Instant.now();
-
-    @Column(name = "assigned_by", length = 100)
-    private String assignedBy;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     @Builder.Default
-    private DoctorStudyStatus status = DoctorStudyStatus.ACTIVE;
+    private PrescriptionStatus status = PrescriptionStatus.UPLOADED;
 
-    @Column(name = "patient_allocation", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
-    private Integer patientAllocation = 20;
+    private Boolean locked = false;
 
-    @Column(name = "patients_enrolled", nullable = false)
-    @Builder.Default
-    private Integer patientsEnrolled = 0;
+    @Column(name = "locked_at")
+    private Instant lockedAt;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

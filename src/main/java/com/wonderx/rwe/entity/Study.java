@@ -45,6 +45,12 @@ public class Study {
     @Column(name = "end_date")
     private LocalDate endDate;
 
+    @Column(name = "target_patients")
+    private Integer targetPatients;
+
+    @Column(name = "target_sites")
+    private Integer targetSites;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

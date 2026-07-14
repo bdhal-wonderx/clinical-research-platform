@@ -76,4 +76,26 @@ public class DoctorController {
     public ResponseEntity<ApiResponse<List<DoctorResponse>>> getAllDoctors() {
         return ResponseEntity.ok(ApiResponse.success(doctorService.getAllDoctors()));
     }
+
+    @PutMapping("/{doctorId}/payment-profile")
+    @Operation(summary = "Update bank/UPI payment details")
+    public ResponseEntity<ApiResponse<Void>> updatePaymentProfile(
+            @PathVariable UUID doctorId, @Valid @RequestBody DoctorPaymentProfileRequest request) {
+        doctorService.updatePaymentProfile(doctorId, request);
+        return ResponseEntity.ok(ApiResponse.success("Payment profile updated", null));
+    }
+
+    @PostMapping("/{doctorId}/documents")
+    @Operation(summary = "Sign onboarding document (MOU, EC, Protocol, Privacy)")
+    public ResponseEntity<ApiResponse<Void>> signDocument(
+            @PathVariable UUID doctorId, @Valid @RequestBody DoctorDocumentSignRequest request) {
+        doctorService.signDocument(doctorId, request);
+        return ResponseEntity.ok(ApiResponse.success("Document signed", null));
+    }
+
+    @GetMapping("/{doctorId}/onboarding-status")
+    @Operation(summary = "Check if onboarding is complete for payouts")
+    public ResponseEntity<ApiResponse<Boolean>> onboardingStatus(@PathVariable UUID doctorId) {
+        return ResponseEntity.ok(ApiResponse.success(doctorService.isOnboardingComplete(doctorId)));
+    }
 }

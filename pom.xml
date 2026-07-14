@@ -15,7 +15,7 @@
     <artifactId>rwe-platform</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>RWE Platform</name>
-    <description>Real World Evidence platform - Doctor Onboarding Service</description>
+    <description>TOLERATE-HF Clinical Research Platform - End to End RWE</description>
 
     <properties>
         <java.version>21</java.version>
@@ -43,6 +43,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
 
         <dependency>

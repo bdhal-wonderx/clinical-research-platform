@@ -25,6 +25,8 @@ public class DoctorService {
     private final DoctorMouRepository doctorMouRepository;
     private final DoctorStudyRepository doctorStudyRepository;
     private final StudyRepository studyRepository;
+    private final DoctorPaymentProfileRepository paymentProfileRepository;
+    private final DoctorDocumentRepository documentRepository;
     private final DoctorMapper doctorMapper;
     private final OtpService otpService;
     private final JwtService jwtService;
@@ -190,6 +192,8 @@ public class DoctorService {
                 .study(study)
                 .assignedBy(request.getAssignedBy())
                 .status(DoctorStudyStatus.ACTIVE)
+                .patientAllocation(20)
+                .patientsEnrolled(0)
                 .assignedAt(Instant.now())
                 .build();
 
@@ -222,6 +226,53 @@ public class DoctorService {
         return doctorRepository.findAll().stream()
                 .map(d -> getDoctorById(d.getId()))
                 .toList();
+    }
+
+    @Transactional
+    public void updatePaymentProfile(UUID doctorId, DoctorPaymentProfileRequest request) {
+        Doctor doctor = findDoctorOrThrow(doctorId);
+        DoctorPaymentProfile profile = paymentProfileRepository.findByDoctorId(doctorId)
+                .orElse(DoctorPaymentProfile.builder().doctor(doctor).build());
+        profile.setBankAccount(request.getBankAccount());
+        profile.setIfscCode(request.getIfscCode());
+        profile.setBankName(request.getBankName());
+        profile.setUpiId(request.getUpiId());
+        profile.setAccountHolder(request.getAccountHolder());
+        paymentProfileRepository.save(profile);
+        auditService.log("DOCTOR_PAYMENT_PROFILE", profile.getId(), "UPDATED", doctor.getMobileNumber(), null, null);
+    }
+
+    @Transactional
+    public void signDocument(UUID doctorId, DoctorDocumentSignRequest request) {
+        Doctor doctor = findDoctorOrThrow(doctorId);
+        Study study = request.getStudyId() != null
+                ? studyRepository.findById(request.getStudyId()).orElse(null) : null;
+
+        DoctorDocument doc = documentRepository.findByDoctorId(doctorId).stream()
+                .filter(d -> d.getDocumentType() == request.getDocumentType())
+                .filter(d -> request.getStudyId() == null
+                        || (d.getStudy() != null && d.getStudy().getId().equals(request.getStudyId())))
+                .findFirst()
+                .orElse(DoctorDocument.builder()
+                        .doctor(doctor)
+                        .study(study)
+                        .documentType(request.getDocumentType())
+                        .build());
+
+        doc.setDocumentUrl(request.getDocumentUrl());
+        doc.setEsignRef(request.getEsignRef());
+        doc.setStatus("SIGNED");
+        doc.setSignedAt(Instant.now());
+        documentRepository.save(doc);
+        auditService.log("DOCTOR_DOCUMENT", doc.getId(), "SIGNED", doctor.getMobileNumber(), null, null);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isOnboardingComplete(UUID doctorId) {
+        return documentRepository.findByDoctorId(doctorId).stream()
+                .filter(d -> "SIGNED".equals(d.getStatus()))
+                .count() >= 1
+                && doctorMouRepository.existsByDoctorIdAndMouStatus(doctorId, MouStatus.SIGNED);
     }
 
     private Doctor findDoctorOrThrow(UUID doctorId) {
