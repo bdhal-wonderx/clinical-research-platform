@@ -1,8 +1,6 @@
-# Clinical Research Platform
+# RWE Platform — Doctor Onboarding
 
-Study of Guideline-Directed Medical Therapy (GDMT) in patients.
-
-Spring Boot service for **doctor onboarding**: mobile OTP authentication, medical profile, hospital details, MOU signing, and study assignment.
+Spring Boot service for **doctor onboarding only**: mobile OTP authentication, medical profile, hospital details, MOU signing, and study assignment.
 
 ## Onboarding Flow
 
