@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: rwe-platform
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:rwe_db}
+    username: ${DB_USER:rwe_user}
+    password: ${DB_PASSWORD:rwe_password}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /
+
+rwe:
+  jwt:
+    secret: ${JWT_SECRET:change-this-secret-key-to-a-256-bit-value-in-production-env}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+  otp:
+    expiration-seconds: ${OTP_EXPIRATION_SECONDS:300}
+    length: 6
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.wonderx.rwe: INFO
+    org.springframework.security: WARN

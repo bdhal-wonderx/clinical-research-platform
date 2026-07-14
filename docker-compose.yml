@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: rwe-postgres
+    environment:
+      POSTGRES_DB: rwe_db
+      POSTGRES_USER: rwe_user
+      POSTGRES_PASSWORD: rwe_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - rwe_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rwe_user -d rwe_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: rwe-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  rwe_postgres_data:
