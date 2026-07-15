@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wonderx.rwe.dto.PrescriptionResponse;
 import com.wonderx.rwe.entity.*;
 import com.wonderx.rwe.enums.*;
-import com.wonderx.rwe.event.PlatformEvent;
 import com.wonderx.rwe.exception.BusinessException;
 import com.wonderx.rwe.exception.ResourceNotFoundException;
 import com.wonderx.rwe.ocr.OcrIntegrationService;
@@ -13,16 +12,12 @@ import com.wonderx.rwe.repository.*;
 import com.wonderx.rwe.storage.DocumentStorageService;
 import com.wonderx.rwe.validation.ProtocolValidationEngine;
 import lombok.RequiredArgsConstructor;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.UUID;
-
-import static com.wonderx.rwe.config.RabbitMqConfig.*;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +27,6 @@ public class PrescriptionService {
     private final PrescriptionDocumentRepository documentRepository;
     private final PatientVisitRepository visitRepository;
     private final PatientRepository patientRepository;
-    private final DoctorRepository doctorRepository;
     private final OcrResultRepository ocrResultRepository;
     private final QcReviewRepository qcReviewRepository;
     private final ValidationResultRepository validationResultRepository;
@@ -44,7 +38,6 @@ public class PrescriptionService {
     private final PaymentService paymentService;
     private final AuditService auditService;
     private final ObjectMapper objectMapper;
-    private final ObjectProvider<RabbitTemplate> rabbitTemplateProvider;
 
     @Transactional
     public PrescriptionResponse uploadPrescription(UUID doctorId, UUID patientId, VisitType visitType, MultipartFile file) {
@@ -159,14 +152,6 @@ public class PrescriptionService {
                 case WARNING -> PrescriptionStatus.VALIDATION_WARNING;
             });
             prescriptionRepository.save(prescription);
-
-            rabbitTemplateProvider.ifAvailable(rt -> rt.convertAndSend(PLATFORM_EXCHANGE, VALIDATION_ROUTING_KEY,
-                    PlatformEvent.builder().eventType("VALIDATION_COMPLETED")
-                            .prescriptionId(prescription.getId())
-                            .patientId(prescription.getPatient().getId())
-                            .doctorId(prescription.getDoctor().getId())
-                            .studyId(prescription.getStudy().getId())
-                            .build()));
         } catch (Exception e) {
             throw new BusinessException("Validation failed: " + e.getMessage());
         }

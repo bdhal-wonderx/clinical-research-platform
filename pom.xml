@@ -12,7 +12,7 @@
     </parent>
 
     <groupId>com.wonderx</groupId>
-    <artifactId>rwe-platform</artifactId>
+    <artifactId>clinical-research-platform</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>RWE Platform</name>
     <description>TOLERATE-HF Clinical Research Platform - End to End RWE</description>
@@ -40,27 +40,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-amqp</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-database-postgresql</artifactId>
         </dependency>
 
         <dependency>

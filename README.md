@@ -15,17 +15,21 @@ Doctor OTP → Profile → MOU → Study Assignment
 
 ## Tech Stack
 
-- Java 21, Spring Boot 3.5, PostgreSQL, Flyway, Redis, RabbitMQ
+- Java 21, Spring Boot 3.5, PostgreSQL, JPA/Hibernate
 - JWT auth, MapStruct, springdoc-openapi
 
 ## Run
 
 ```bash
-docker compose up -d          # PostgreSQL + Redis + RabbitMQ
+docker compose up -d          # PostgreSQL only
 ./mvnw spring-boot:run
 ```
 
 Swagger UI: `http://localhost:8081/swagger-ui.html`
+
+> **Schema:** Hibernate `ddl-auto: update` creates/updates tables from JPA entities on startup.  
+> **Seed data:** `StudyDataInitializer` loads TOLERATE-HF study on first run.  
+> **OTP:** Stored in-memory (no Redis required).
 
 ## API Overview
 
@@ -64,14 +68,10 @@ Swagger UI: `http://localhost:8081/swagger-ui.html`
 |--------|----------|-------------|
 | PATCH | `/api/v1/payments/{id}/mark-paid` | Mark honorarium paid (ops) |
 
-## Database Migrations
+## Database & Schema
 
-| Migration | Content |
-|-----------|---------|
-| V1 | Doctor onboarding + study config |
-| V2 | Seed study |
-| V3 | Full clinical pipeline (patient, Rx, OCR, QC, validation, follow-up, payment) |
-| V4 | TOLERATE-HF study rules, payment & reminder config |
+- **No Flyway** — tables are managed by Hibernate (`spring.jpa.hibernate.ddl-auto: update`)
+- **Seed data** — `StudyDataInitializer` creates TOLERATE-HF study, protocol rules, payment & reminder config on first startup
 
 ## Configuration
 
@@ -97,6 +97,6 @@ com.wonderx.rwe/
 ├── ocr/           OCR integration client (mock + REST)
 ├── scheduler/     Follow-up SMS/voice reminders
 ├── storage/       Document upload service
-├── entity/        25+ JPA entities
-└── event/         RabbitMQ platform events
+├── config/        StudyDataInitializer (seed data)
+└── entity/        JPA entities
 ```
